@@ -27,4 +27,19 @@ namespace VendingMachine.Core.Tests
         It should_be_equal_to_each_other = () => 
             Subject1.Equals(Subject2).ShouldBeTrue();
     }
+
+    [Subject(typeof(Coin), "Implicit conversion")]
+    public class when_converting_between_coin_and_decimal : WithResult<decimal>
+    {
+        static Coin Subject;
+        
+        Establish context = () => 
+            Subject = new Coin(Currency.GBP, 0.05m);
+
+        Because of = () => 
+            Result = Subject;
+
+        It should_return_the_value_of_the_coins_denomination = () => 
+            Result.ShouldEqual(0.05m);
+    }
 }

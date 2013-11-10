@@ -26,7 +26,7 @@ namespace VendingMachine.Core
             }
 
             var denominationValidator = this.denominationValidatorFactory.Create(coin.Currency);
-            denominationValidator.Validate(coin.Amount);
+            denominationValidator.Validate(coin.Denomination);
         }
     }
 }

@@ -8,19 +8,19 @@ namespace VendingMachine.Core
     public struct Coin
     {
         private readonly Currency currency;
-        private readonly decimal amount;
+        private readonly decimal denomination;
 
-        public Coin(Currency currency, decimal amount) : this()
+        public Coin(Currency currency, decimal denomination) : this()
         {
-            this.amount = amount;
+            this.denomination = denomination;
             this.currency = currency;
         }
 
-        public decimal Amount
+        public decimal Denomination
         {
             get
             {
-                return this.amount;
+                return this.denomination;
             }            
         }
 
@@ -53,6 +53,11 @@ namespace VendingMachine.Core
             hash = hash * 23 + this.currency.GetHashCode();
             
             return hash;
+        }
+
+        public static implicit operator decimal(Coin coin)
+        {
+            return coin.denomination;
         }
     }
 }

@@ -19,7 +19,7 @@
         {
             get
             {
-                return this.coins.Sum(coin => coin.Amount);
+                return this.coins.Total;
             }
         }
 
@@ -29,6 +29,11 @@
             {
                 return this.inventory;
             }            
+        }
+
+        public CoinCollection Purchase(Product product, CoinCollection coins)
+        {
+            return new CoinCollection(Currency.GBP);
         }
     }
 }
