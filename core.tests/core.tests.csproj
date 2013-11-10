@@ -56,8 +56,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CoinValidatorSpecs.cs" />
-    <Compile Include="CurrencyValidatorSpecs.cs" />
+    <Compile Include="Model\CoinCollectionSpecs.cs" />
+    <Compile Include="Model\CoinSpecs.cs" />
+    <Compile Include="Model\Validation\CoinValidatorSpecs.cs" />
+    <Compile Include="Model\Validation\CurrencyValidatorSpecs.cs" />
+    <Compile Include="Model\Validation\DenominationValidatorFactorySpecs.cs" />
+    <Compile Include="Util\ContextBase.cs" />
+    <Compile Include="VendingMachineApplicationSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\WithSubjectAndResult.cs" />
     <Compile Include="Util\WithValueType.cs" />

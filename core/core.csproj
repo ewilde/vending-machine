@@ -39,13 +39,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Coin.cs" />
-    <Compile Include="CoinValidator.cs" />
-    <Compile Include="Currency.cs" />
-    <Compile Include="CurrencyValidator.cs" />
-    <Compile Include="ICurrencyValidator.cs" />
-    <Compile Include="IDenominationValidator.cs" />
-    <Compile Include="IDenominationValidatorFactory.cs" />
+    <Compile Include="Model\Coin.cs" />
+    <Compile Include="Model\CoinCollection.cs" />
+    <Compile Include="Model\Validation\CoinValidator.cs" />
+    <Compile Include="Model\Currency.cs" />
+    <Compile Include="Model\Validation\CurrencyValidator.cs" />
+    <Compile Include="Model\Validation\DenominationValidator.cs" />
+    <Compile Include="Model\Validation\DenominationValidatorFactory.cs" />
+    <Compile Include="Model\Validation\ICoinValidator.cs" />
+    <Compile Include="Model\Validation\ICurrencyValidator.cs" />
+    <Compile Include="Model\Validation\IDenominationValidator.cs" />
+    <Compile Include="Model\Validation\IDenominationValidatorFactory.cs" />
+    <Compile Include="Model\InventoryItem.cs" />
+    <Compile Include="Model\Product.cs" />
+    <Compile Include="VendingMachineApplication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

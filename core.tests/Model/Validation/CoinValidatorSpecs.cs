@@ -28,7 +28,7 @@ namespace VendingMachine.Core.Tests
 
         It should_verify_the_coins_currency_is_supported = () => The<ICurrencyValidator>().WasToldTo(call => call.SupportedCurrency(coin.Currency));        
 
-        It should_verify_the_coins_denomiation_is_valid = () => The<IDenominationValidator>().WasToldTo(call => call.Validate(coin.Currency, coin.Amount));
+        It should_verify_the_coins_denomiation_is_valid = () => The<IDenominationValidator>().WasToldTo(call => call.Validate(coin.Amount));
     }          
 
     [Subject(typeof(CoinValidator), "Validation")]

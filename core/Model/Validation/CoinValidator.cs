@@ -7,7 +7,7 @@ namespace VendingMachine.Core
 {
     using System;
 
-    public class CoinValidator
+    public class CoinValidator : ICoinValidator
     {
         private readonly ICurrencyValidator currencyValidator;
         private readonly IDenominationValidatorFactory denominationValidatorFactory;
@@ -26,7 +26,7 @@ namespace VendingMachine.Core
             }
 
             var denominationValidator = this.denominationValidatorFactory.Create(coin.Currency);
-            denominationValidator.Validate(coin.Currency, coin.Amount);
+            denominationValidator.Validate(coin.Amount);
         }
     }
 }
