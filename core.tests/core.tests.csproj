@@ -56,8 +56,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\CoinCollectionSpecs.cs" />
+    <Compile Include="Model\CoinStackCollectionSpecs.cs" />
     <Compile Include="Model\CoinSpecs.cs" />
+    <Compile Include="Model\CoinStackSpecs.cs" />
     <Compile Include="Model\Validation\CoinValidatorSpecs.cs" />
     <Compile Include="Model\Validation\CurrencyValidatorSpecs.cs" />
     <Compile Include="Model\Validation\DenominationValidatorFactorySpecs.cs" />

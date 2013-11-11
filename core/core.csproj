@@ -40,8 +40,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\Coin.cs" />
-    <Compile Include="Model\CoinCollection.cs" />
+    <Compile Include="Model\CoinStackCollection.cs" />
     <Compile Include="Model\CoinStack.cs" />
+    <Compile Include="Model\Exceptions\InsufficientFundsException.cs" />
+    <Compile Include="Model\Exceptions\VendingMachineException.cs" />
     <Compile Include="Model\Validation\CoinValidator.cs" />
     <Compile Include="Model\Currency.cs" />
     <Compile Include="Model\Validation\CurrencyValidator.cs" />

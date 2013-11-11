@@ -7,15 +7,14 @@ namespace VendingMachine.Core
 {
     public class Product
     {
-        private string name;
-        private decimal price;
-
         public Product(string name, decimal price)
         {
-            // TODO: Complete member initialization
-            this.name = name;
-            this.price = price;
+            this.Name = name;
+            this.Price = price;
         }
-         
+
+        public string Name { get; private set; }
+
+        public decimal Price { get; private set; }
     }
 }

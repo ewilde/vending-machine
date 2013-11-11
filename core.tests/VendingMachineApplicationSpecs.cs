@@ -19,7 +19,7 @@ namespace VendingMachine.Core.Tests
         Establish context = () => {  };
 
         Because of = () => Subject.Load(
-            new CoinCollection(Currency.GBP)
+            new CoinStackCollection(Currency.GBP)
                 {
                     new CoinStack(new Coin(Currency.GBP, 0.01m), 15), 
                     new CoinStack(new Coin(Currency.GBP, 0.05m), 10), 
@@ -37,12 +37,45 @@ namespace VendingMachine.Core.Tests
     }
 
     [Subject(typeof(VendingMachineApplication), "purchasing")]
-    public class when_purchasing_an_item_using_coins_higher_than_the_item_price : WithSubjectAndResult<VendingMachineApplication, CoinCollection>
+    public class when_purchasing_an_item_using_coins_less_than_the_product_price : WithSubjectAndResult<VendingMachineApplication, CoinStackCollection>
+    {
+        Establish context = () => With<FullyLoadedVendingMachineContext>();
+
+        Because of = () => Exception =
+            Catch.Exception(()=> Result = Subject.Purchase(DummyInventory.Coke, // 90p 
+            new CoinStackCollection(Currency.GBP)
+                {
+                    new CoinStack(new Coin(Currency.GBP, 0.50m), 1),
+                    new CoinStack(new Coin(Currency.GBP, 0.20m), 1)
+                }));
+
+        It should_throw_an_exception = () => Exception.ShouldNotBeNull();
+
+        It should_throw_an_exception_of_type_insufficient_funds_exception = () => Exception.ShouldBeOfType<InsufficientFundsException>();
+    }
+
+    [Subject(typeof(VendingMachineApplication), "purchasing")]
+    public class when_purchasing_an_item_using_coins_higher_than_the_product_price : WithSubjectAndResult<VendingMachineApplication, CoinStackCollection>
     {
         Establish context = () => With<FullyLoadedVendingMachineContext>();
 
         Because of = () => Result = Subject.Purchase(DummyInventory.Coke, // 90p 
-            new CoinCollection(Currency.GBP)
+            new CoinStackCollection(Currency.GBP)
+                {
+                    new CoinStack(new Coin(Currency.GBP, 0.50m), 1),
+                    new CoinStack(new Coin(Currency.GBP, 0.20m), 2)
+                });
+
+        It should_return_the_correct_amount_of_change = () => Result.Total.ShouldEqual(0.10m);
+    }
+
+    [Subject(typeof(VendingMachineApplication), "purchasing")]
+    public class when_purchasing_an_item_and_the_machine_cannot_vend_exact_change : WithSubjectAndResult<VendingMachineApplication, CoinStackCollection>
+    {
+        Establish context = () => With(new FullyLoadedVendingMachineContext(asdf));
+
+        Because of = () => Result = Subject.Purchase(DummyInventory.Coke, // 90p 
+            new CoinStackCollection(Currency.GBP)
                 {
                     new CoinStack(new Coin(Currency.GBP, 0.50m), 1),
                     new CoinStack(new Coin(Currency.GBP, 0.20m), 2)
@@ -60,9 +93,9 @@ namespace VendingMachine.Core.Tests
             };
 
         
-        public static CoinCollection Cash()
+        public static CoinStackCollection Cash()
         {
-            return new CoinCollection(Currency.GBP)
+            return new CoinStackCollection(Currency.GBP)
                 {
                     new CoinStack(new Coin(Currency.GBP, 0.01m), 100),
                     new CoinStack(new Coin(Currency.GBP, 0.02m), 100),

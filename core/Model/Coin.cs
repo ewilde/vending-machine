@@ -55,6 +55,11 @@ namespace VendingMachine.Core
             return hash;
         }
 
+        public override string ToString()
+        {
+            return string.Format("Currency: {0}, denomination: {1}", this.currency, this.denomination);
+        }
+
         public static implicit operator decimal(Coin coin)
         {
             return coin.denomination;
