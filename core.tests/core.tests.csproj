@@ -56,7 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\CoinStackCollectionSpecs.cs" />
+    <Compile Include="Model\MoneyHopperSpecs.cs" />
     <Compile Include="Model\CoinSpecs.cs" />
     <Compile Include="Model\CoinStackSpecs.cs" />
     <Compile Include="Model\Validation\CoinValidatorSpecs.cs" />

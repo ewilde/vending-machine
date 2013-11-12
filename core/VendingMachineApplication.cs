@@ -5,11 +5,11 @@
 
     public class VendingMachineApplication
     {
-        private CoinStackCollection coins;
+        private MoneyHopper coins;
 
-        private HashSet<InventoryItem> inventory;
+        private List<InventoryItem> inventory;
 
-        public void Load(CoinStackCollection moneyCollection, HashSet<InventoryItem> inventoryItems)
+        public void Load(MoneyHopper moneyCollection, List<InventoryItem> inventoryItems)
         {
             this.coins = moneyCollection;
             this.inventory = inventoryItems;
@@ -31,7 +31,7 @@
             }            
         }
 
-        public CoinStackCollection Purchase(Product product, CoinStackCollection coinsOffered)
+        public MoneyHopper Purchase(Product product, MoneyHopper coinsOffered)
         {
             this.EnsureSufficientCoinsGiven(product, coinsOffered);
 
@@ -42,9 +42,9 @@
             return change;
         }
 
-        private CoinStackCollection CalculateChange(Product product, CoinStackCollection coinsOffered)
+        private MoneyHopper CalculateChange(Product product, MoneyHopper coinsOffered)
         {
-            var change = new CoinStackCollection(coinsOffered.Currency);
+            var change = new MoneyHopper(coinsOffered.Currency);
             var changeRequired = coinsOffered.Total - product.Price;
             foreach (var stack in this.coins.OrderByDescending(item => item.Coin.Denomination))
             {
@@ -73,7 +73,7 @@
             return change;
         }
 
-        private void ReturnCoins(IEnumerable<CoinStack> coinsOffered)
+        private void ReturnCoins(IEnumerable<StackOfCoins> coinsOffered)
         {
             foreach (var coin in coinsOffered)
             {
@@ -81,7 +81,7 @@
             }
         }
 
-        private void AcceptCoins(IEnumerable<CoinStack> coinsOffered)
+        private void AcceptCoins(IEnumerable<StackOfCoins> coinsOffered)
         {
             foreach (var coin in coinsOffered)
             {
@@ -89,7 +89,7 @@
             }
         }
 
-        private void EnsureSufficientCoinsGiven(Product product, CoinStackCollection coinsOffered)
+        private void EnsureSufficientCoinsGiven(Product product, MoneyHopper coinsOffered)
         {
             if (coinsOffered.Total < product.Price)
             {

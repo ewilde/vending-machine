@@ -7,13 +7,14 @@ namespace VendingMachine.Core
 {
     public class InventoryItem
     {
-        private Product product;
-        private int quantity;
+        public Product Product { get; set; }
+
+        public int Quantity { get; set; }
 
         public InventoryItem(Product product, int quantity)
         {
-            this.product = product;
-            this.quantity = quantity;
-        }         
+            Product = product;
+            Quantity = quantity;
+        }
     }
 }

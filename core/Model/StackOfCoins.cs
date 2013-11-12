@@ -1,11 +1,11 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="CoinStack.cs">
+// <copyright file="StackOfCoins.cs">
 // Copyright (c) 2013.
 // </copyright>
 // -----------------------------------------------------------------------
 namespace VendingMachine.Core
 {
-    public class CoinStack
+    public class StackOfCoins
     {
         public Coin Coin { get; private set; }
 
@@ -19,7 +19,7 @@ namespace VendingMachine.Core
             }
         }
 
-        public CoinStack(Coin coin, int amount)
+        public StackOfCoins(Coin coin, int amount)
         {
             this.Coin = coin;
             this.Amount = amount;

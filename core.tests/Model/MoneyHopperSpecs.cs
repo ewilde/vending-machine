@@ -12,33 +12,35 @@ namespace VendingMachine.Core.Tests
     using Machine.Specifications;
 
 
-    [Subject(typeof(CoinStackCollection), "Validation")]
-    public class when_adding_stacks_of_coins_to_the_collection : Util.WithSubject<CoinStackCollection>
+    [Subject(typeof(MoneyHopper), "Validation")]
+    public class when_adding_stacks_of_coins_to_the_hopper : Util.WithSubject<MoneyHopper>
     {
         static Coin coinAdding;
         Establish context = () =>
             {
                 Configure(x => x.For<Currency>().Use(Currency.GBP)); // construct coin collection as GBP collection
+                Configure(x => x.For<IList<StackOfCoins>>().Use(new List<StackOfCoins>()));               
                 coinAdding = new Coin(Currency.GBP, 0.50m);
             };
 
-        Because of = () => Subject.Add(new CoinStack(coinAdding, 10));
+        Because of = () => Subject.Add(new StackOfCoins(coinAdding, 10));
 
-        It should_check_the_coin_is_valid_before_adding_to_the_collection = () => The<ICoinValidator>().WasToldTo(call => call.Validate(coinAdding));
+        It should_check_the_coin_is_valid_before_adding_to_the_hopper = () => The<ICoinValidator>().WasToldTo(call => call.Validate(coinAdding));
     }
 
 
-    [Subject(typeof(CoinStackCollection), "Validation")]
-    public class when_adding_mixed_coins_to_the_collection : Util.WithSubject<CoinStackCollection>
+    [Subject(typeof(MoneyHopper), "Validation")]
+    public class when_adding_mixed_coins_to_the_hopper : Util.WithSubject<MoneyHopper>
     {
-        static CoinStack britishCoinStack;
-        static CoinStack americanCoinStack;
+        static StackOfCoins britishCoinStack;
+        static StackOfCoins americanCoinStack;
 
         Establish context = () =>
             {
                 Configure(x => x.For<Currency>().Use(Currency.USD)); // construct coin collection as USD collection
-                americanCoinStack = new CoinStack(new Coin(Currency.USD, 0.25m), 1);
-                britishCoinStack = new CoinStack(new Coin(Currency.GBP, 0.50m), 1);
+                Configure(x => x.For<IList<StackOfCoins>>().Use(new List<StackOfCoins>()));
+                americanCoinStack = new StackOfCoins(new Coin(Currency.USD, 0.25m), 1);
+                britishCoinStack = new StackOfCoins(new Coin(Currency.GBP, 0.50m), 1);
 
                 Subject.Add(americanCoinStack);
             };
@@ -50,8 +52,8 @@ namespace VendingMachine.Core.Tests
         It should_throw_an_argument_out_of_range_exception = () => Exception.ShouldBeOfType<ArgumentOutOfRangeException>();
     }
 
-    [Subject(typeof(CoinStackCollection), "Adding")]
-    public class when_adding_a_single_coin_to_the_collection : Util.WithSubject<CoinStackCollection>
+    [Subject(typeof(MoneyHopper), "Adding")]
+    public class when_adding_a_single_coin_to_the_hopper : Util.WithSubject<MoneyHopper>
     {
         static Coin onePennyCoin = new Coin(Currency.GBP, 0.01m);
         static Coin twoPennyCoin = new Coin(Currency.GBP, 0.02m);
@@ -59,9 +61,9 @@ namespace VendingMachine.Core.Tests
         Establish context = () =>
             {
                 Configure(x => x.For<Currency>().Use(Currency.GBP));
-                Configure(x => x.For <IList<CoinStack>>().Use(new List<CoinStack>()));
-                Subject.Add(new CoinStack(onePennyCoin, 0));
-                Subject.Add(new CoinStack(twoPennyCoin, 0));
+                Configure(x => x.For <IList<StackOfCoins>>().Use(new List<StackOfCoins>()));
+                Subject.Add(new StackOfCoins(onePennyCoin, 0));
+                Subject.Add(new StackOfCoins(twoPennyCoin, 0));
             };
 
         Because of = () => Subject.Add(onePennyCoin);
@@ -70,8 +72,8 @@ namespace VendingMachine.Core.Tests
             Subject[onePennyCoin].Amount.ShouldEqual(1);        
     }
 
-    [Subject(typeof(CoinStackCollection), "Adding")]
-    public class when_adding_a_stack_to_the_collection_that_already_contains_a_stack_for_that_denomiation : Util.WithSubject<CoinStackCollection>
+    [Subject(typeof(MoneyHopper), "Adding")]
+    public class when_adding_a_stack_to_the_hopper_that_already_contains_a_stack_for_that_denomiation : Util.WithSubject<MoneyHopper>
     {
         static Coin onePennyCoin = new Coin(Currency.GBP, 0.01m);
         static Coin twoPennyCoin = new Coin(Currency.GBP, 0.02m);
@@ -79,12 +81,12 @@ namespace VendingMachine.Core.Tests
         Establish context = () =>
             {
                 Configure(x => x.For<Currency>().Use(Currency.GBP));
-                Configure(x => x.For <IList<CoinStack>>().Use(new List<CoinStack>()));
-                Subject.Add(new CoinStack(onePennyCoin, 2));
-                Subject.Add(new CoinStack(twoPennyCoin, 0));
+                Configure(x => x.For <IList<StackOfCoins>>().Use(new List<StackOfCoins>()));
+                Subject.Add(new StackOfCoins(onePennyCoin, 2));
+                Subject.Add(new StackOfCoins(twoPennyCoin, 0));
             };
 
-        Because of = () => Subject.Add(new CoinStack(onePennyCoin, 3));
+        Because of = () => Subject.Add(new StackOfCoins(onePennyCoin, 3));
 
         It should_not_add_a_duplicate_stack = () =>
             Subject.Count.ShouldEqual(2);
@@ -93,18 +95,18 @@ namespace VendingMachine.Core.Tests
             Subject[onePennyCoin].Amount.ShouldEqual(5);
     }
 
-    [Subject(typeof(CoinStackCollection), "Lookup")]
-    public class when_looking_up_an_item_by_using_a_valid_index : Util.WithSubjectAndResult<CoinStackCollection, CoinStack>
+    [Subject(typeof(MoneyHopper), "Lookup")]
+    public class when_looking_up_an_item_by_using_a_valid_index : Util.WithSubjectAndResult<MoneyHopper, StackOfCoins>
     {
         static Coin onePennyCoin = new Coin(Currency.GBP, 0.01m);
         static Coin twoPennyCoin = new Coin(Currency.GBP, 0.02m);
-        static CoinStack onePennyStack = new CoinStack(onePennyCoin, 0);
-        static CoinStack twoPennyStack = new CoinStack(twoPennyCoin, 0);
+        static StackOfCoins onePennyStack = new StackOfCoins(onePennyCoin, 0);
+        static StackOfCoins twoPennyStack = new StackOfCoins(twoPennyCoin, 0);
 
         Establish context = () =>
         {
             Configure(x => x.For<Currency>().Use(Currency.GBP));
-            Configure(x => x.For<IList<CoinStack>>().Use(new List<CoinStack>()));
+            Configure(x => x.For<IList<StackOfCoins>>().Use(new List<StackOfCoins>()));
             Subject.Add(onePennyStack);
             Subject.Add(twoPennyStack);
         };
@@ -114,18 +116,18 @@ namespace VendingMachine.Core.Tests
         It should_retrieve_the_item_from_the_collection = () => Result.ShouldEqual(twoPennyStack);
     }
 
-    [Subject(typeof(CoinStackCollection), "Lookup")]
-    public class when_looking_up_an_item_by_using_a_invalid_index : Util.WithSubjectAndResult<CoinStackCollection, CoinStack>
+    [Subject(typeof(MoneyHopper), "Lookup")]
+    public class when_looking_up_an_item_by_using_a_invalid_index : Util.WithSubjectAndResult<MoneyHopper, StackOfCoins>
     {
         static Coin onePennyCoin = new Coin(Currency.GBP, 0.01m);
         static Coin twoPennyCoin = new Coin(Currency.GBP, 0.02m);
-        static CoinStack onePennyStack = new CoinStack(onePennyCoin, 0);
-        static CoinStack twoPennyStack = new CoinStack(twoPennyCoin, 0);
+        static StackOfCoins onePennyStack = new StackOfCoins(onePennyCoin, 0);
+        static StackOfCoins twoPennyStack = new StackOfCoins(twoPennyCoin, 0);
 
         Establish context = () =>
         {
             Configure(x => x.For<Currency>().Use(Currency.GBP));
-            Configure(x => x.For<IList<CoinStack>>().Use(new List<CoinStack>()));
+            Configure(x => x.For<IList<StackOfCoins>>().Use(new List<StackOfCoins>()));
             Subject.Add(onePennyStack);
         };
 

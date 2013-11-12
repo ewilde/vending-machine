@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="CoinStackCollection.cs">
+// <copyright file="MoneyHopper.cs">
 // Copyright (c) 2013.
 // </copyright>
 // -----------------------------------------------------------------------
@@ -10,24 +10,24 @@ namespace VendingMachine.Core
     using System.Collections.ObjectModel;
     using System.Linq;
 
-    public class CoinStackCollection : Collection<CoinStack>
+    public class MoneyHopper : Collection<StackOfCoins>
     {
         private readonly Currency currency;
 
         private readonly ICoinValidator coinValidator;
 
-        public CoinStackCollection(Currency currency) 
-            : this(currency, new List<CoinStack>())
+        public MoneyHopper(Currency currency) 
+            : this(currency, new List<StackOfCoins>())
         {
             
         }
 
-        public CoinStackCollection(Currency currency, IList<CoinStack> list)
+        public MoneyHopper(Currency currency, IList<StackOfCoins> list)
             : this(currency, list, new CoinValidator(new CurrencyValidator(), new DenominationValidatorFactory()))
         {
         }
 
-        public CoinStackCollection(Currency currency, IList<CoinStack> list, ICoinValidator coinValidator)
+        public MoneyHopper(Currency currency, IList<StackOfCoins> list, ICoinValidator coinValidator)
             : base(list)
         {
             this.currency = currency;
@@ -50,7 +50,7 @@ namespace VendingMachine.Core
             }
         }
 
-        public CoinStack this[Coin index]
+        public StackOfCoins this[Coin index]
         {
             get
             {
@@ -69,7 +69,7 @@ namespace VendingMachine.Core
             var stack = this.GetStack(coin);
             if (stack == null)
             {
-                this.Add(new CoinStack(coin, 1));
+                this.Add(new StackOfCoins(coin, 1));
             }
             else
             {
@@ -82,7 +82,7 @@ namespace VendingMachine.Core
             return this.GetStack(value) != null;
         }
 
-        protected override void InsertItem(int index, CoinStack item)
+        protected override void InsertItem(int index, StackOfCoins item)
         {
             this.Validate(item);
 
@@ -96,7 +96,7 @@ namespace VendingMachine.Core
             }
         }
 
-        protected void Validate(CoinStack item)
+        protected void Validate(StackOfCoins item)
         {
             this.coinValidator.Validate(item.Coin);
 
@@ -106,7 +106,7 @@ namespace VendingMachine.Core
             }
         }
 
-        private CoinStack GetStack(Coin index)
+        private StackOfCoins GetStack(Coin index)
         {
             return this.FirstOrDefault(item => item.Coin == index);
         }

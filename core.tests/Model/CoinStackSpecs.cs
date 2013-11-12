@@ -12,12 +12,12 @@ using Machine.Specifications;
 
 namespace VendingMachine.Core.Tests
 {
-    [Subject(typeof(CoinStack))]
+    [Subject(typeof(StackOfCoins))]
     public class When_calculating_the_total_value_of_a_stack_of_coins : Util.WithResult<decimal>
     {
-        static CoinStack Subject;
+        static StackOfCoins Subject;
 
-        Establish context = () => Subject = new CoinStack(new Coin(Currency.GBP, 0.02m), 51);
+        Establish context = () => Subject = new StackOfCoins(new Coin(Currency.GBP, 0.02m), 51);
 
         Because of = () => Result = Subject.Total;
 
@@ -29,9 +29,9 @@ namespace VendingMachine.Core.Tests
     {
         const int OriginalAmount = 51;
 
-        static CoinStack Subject;
+        static StackOfCoins Subject;
 
-        Establish context = () => Subject = new CoinStack(new Coin(Currency.GBP, 0.02m), OriginalAmount);
+        Establish context = () => Subject = new StackOfCoins(new Coin(Currency.GBP, 0.02m), OriginalAmount);
 
         Because of = () => Result = Subject.Remove();
 
@@ -43,9 +43,9 @@ namespace VendingMachine.Core.Tests
     {
         const int OriginalAmount = 51;
 
-        static CoinStack Subject;
+        static StackOfCoins Subject;
 
-        Establish context = () => Subject = new CoinStack(new Coin(Currency.GBP, 0.02m), OriginalAmount);
+        Establish context = () => Subject = new StackOfCoins(new Coin(Currency.GBP, 0.02m), OriginalAmount);
 
         Because of = () => Result = Subject.Add();
 
