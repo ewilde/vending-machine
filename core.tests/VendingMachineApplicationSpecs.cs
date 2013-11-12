@@ -25,10 +25,10 @@ namespace VendingMachine.Core.Tests
                     new StackOfCoins(new Coin(Currency.GBP, 0.05m), 10), 
                     new StackOfCoins(new Coin(Currency.GBP, 0.10m), 5)
                 },
-            new HashSet<InventoryItem>
+            new List<InventoryItem>
                 {
-                    new InventoryItem(product: new Product(name: "Coke", price: 0.80m), quantity: 10),
-                    new InventoryItem(product: new Product(name: "Sprite", price: 0.60m), quantity: 5)
+                    new InventoryItem(product: new Product(name: "Coke", price: 0.80m), quantity: 10, machineLocation: "A1"),
+                    new InventoryItem(product: new Product(name: "Sprite", price: 0.60m), quantity: 5, machineLocation: "A2")
                 });
 
         It should_report_the_total_amount_of_money = () => Subject.TotalMoneyAvailable.ShouldEqual(1.15m);
@@ -40,13 +40,15 @@ namespace VendingMachine.Core.Tests
     public class when_purchasing_an_item_using_a_single_coin : WithSubjectAndResult<VendingMachineApplication, MoneyHopper>
     {
         static decimal originalBalance;
-        static MoneyHopper customersCoins;
+        static int originalCokeQuantity;
+        static CoinPurse customersCoins;
 
         Establish context = () =>
             {
                 With<FullyLoadedVendingMachineContext>();
                 originalBalance = Subject.TotalMoneyAvailable;
-                customersCoins = new MoneyHopper(Currency.GBP)
+                originalCokeQuantity = Subject.Inventory.First(item => item.Product.Equals(DummyInventory.Coke)).Quantity;
+                customersCoins = new CoinPurse(Currency.GBP)
                     {
                         new StackOfCoins(new Coin(Currency.GBP, 2.00m), 1)
                     };
@@ -64,19 +66,24 @@ namespace VendingMachine.Core.Tests
                 Result[0].Coin.Denomination.ShouldEqual(1.00m);
                 Result[1].Coin.Denomination.ShouldEqual(0.20m);
             };
+
+        It should_decrease_the_inventory_count_for_the_purchased_item_by_one = () =>
+                Subject.Inventory.First(item => item.Product.Equals(DummyInventory.Coke))
+                       .Quantity.ShouldEqual(originalCokeQuantity - 1);
+            
     }
 
     [Subject(typeof(VendingMachineApplication), "purchasing")]
     public class when_purchasing_an_item_using_a_many_coins : WithSubjectAndResult<VendingMachineApplication, MoneyHopper>
     {
         static decimal originalBalance;
-        static MoneyHopper customersCoins;
+        static CoinPurse customersCoins;
 
         Establish context = () =>
             {
                 With<FullyLoadedVendingMachineContext>();
                 originalBalance = Subject.TotalMoneyAvailable;
-                customersCoins = new MoneyHopper(Currency.GBP)
+                customersCoins = new CoinPurse(Currency.GBP)
                     {
                         new StackOfCoins(new Coin(Currency.GBP, 0.20m), 2),
                         new StackOfCoins(new Coin(Currency.GBP, 0.10m), 3),
@@ -100,12 +107,14 @@ namespace VendingMachine.Core.Tests
     [Subject(typeof(VendingMachineApplication), "purchasing")]
     public class when_purchasing_an_item_using_coins_less_than_the_product_price : WithSubjectAndResult<VendingMachineApplication, MoneyHopper>
     {
-        static MoneyHopper customersCoins;
-
+        static CoinPurse customersCoins;
+        static decimal originalBalance;
+        
         Establish context = () =>
             {
                 With<FullyLoadedVendingMachineContext>();
-                customersCoins = new MoneyHopper(Currency.GBP)
+                originalBalance = Subject.TotalMoneyAvailable;
+                customersCoins = new CoinPurse(Currency.GBP)
                     {
                         new StackOfCoins(new Coin(Currency.GBP, 0.50m), 1),
                         new StackOfCoins(new Coin(Currency.GBP, 0.20m), 1)
@@ -118,19 +127,26 @@ namespace VendingMachine.Core.Tests
         It should_throw_an_exception = () => Exception.ShouldNotBeNull();
 
         It should_throw_an_exception_of_type_insufficient_funds_exception = () => Exception.ShouldBeOfType<InsufficientFundsException>();
+
+        It should_leave_the_vending_machine_cash_balance_unaltered = () => Subject.TotalMoneyAvailable.ShouldEqual(originalBalance);
+
+        It should_not_decrease_the_inventory_count_for_the_attempted_purchase = () =>
+            Subject.Inventory.First(item => item.Product.Equals(DummyInventory.Coke)).Quantity.ShouldEqual(10);
     }
 
     [Subject(typeof(VendingMachineApplication), "purchasing")]
     public class when_purchasing_an_item_and_the_machine_cannot_vend_exact_change : WithSubjectAndResult<VendingMachineApplication, MoneyHopper>
     {
-        static MoneyHopper customersCoins;
-
+        static CoinPurse customersCoins;
+        static decimal originalBalance;
+        
         Establish context = () =>
             {
                 With(new FullyLoadedVendingMachineContext(
                     new MoneyHopper(Currency.GBP, new List<StackOfCoins>(new[] { new StackOfCoins(new Coin(Currency.GBP, 2.0m), 100) }))));
-                
-                customersCoins = new MoneyHopper(Currency.GBP)
+
+                originalBalance = Subject.TotalMoneyAvailable;
+                customersCoins = new CoinPurse(Currency.GBP)
                 {
                     new StackOfCoins(new Coin(Currency.GBP, 0.50m), 1),
                     new StackOfCoins(new Coin(Currency.GBP, 0.20m), 2)
@@ -144,7 +160,19 @@ namespace VendingMachine.Core.Tests
 
         It should_throw_an_exception = () => Exception.ShouldNotBeNull();
 
-        It should_leave_the_vending_machine_cash_balance_unaltered = () => Subject.TotalMoneyAvailable.ShouldEqual(200m);
+        It should_leave_the_vending_machine_cash_balance_unaltered = () => Subject.TotalMoneyAvailable.ShouldEqual(originalBalance);
+    }
+
+    [Subject(typeof(VendingMachineApplication), "Validation")]
+    public class when_attempting_to_purchase_an_out_of_stock_item
+    {
+        Establish context = () => {  };
+
+        Because of = () => { };
+
+        It should_throw_an_exception = () => { };
+
+        It should_throw_an_exception_of_type_product_out_of_stock_exception = () => { asd };
     }
 
     public class FullyLoadedVendingMachineContext : ContextBase
@@ -182,12 +210,12 @@ namespace VendingMachine.Core.Tests
                 };
         }
 
-        public static HashSet<InventoryItem> Inventory()
+        public static List<InventoryItem> Inventory()
         {
-            return new HashSet<InventoryItem>
+            return new List<InventoryItem>
                 {
-                    new InventoryItem(product: DummyInventory.Coke, quantity: 10),
-                    new InventoryItem(product: DummyInventory.Sprite, quantity: 5)
+                    new InventoryItem(product: DummyInventory.Coke, quantity: 10, machineLocation: "A1"),
+                    new InventoryItem(product: DummyInventory.Sprite, quantity: 5, machineLocation: "A2")
                 };
         }
     }

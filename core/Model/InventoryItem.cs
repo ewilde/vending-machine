@@ -11,10 +11,13 @@ namespace VendingMachine.Core
 
         public int Quantity { get; set; }
 
-        public InventoryItem(Product product, int quantity)
+        public string MachineLocation { get; set; }
+
+        public InventoryItem(Product product, int quantity, string machineLocation)
         {
             Product = product;
             Quantity = quantity;
+            MachineLocation = machineLocation;
         }
     }
 }

@@ -5,13 +5,13 @@
 
     public class VendingMachineApplication
     {
-        private MoneyHopper coins;
+        private MoneyHopper hopper;
 
         private List<InventoryItem> inventory;
 
-        public void Load(MoneyHopper moneyCollection, List<InventoryItem> inventoryItems)
+        public void Load(MoneyHopper hopper, List<InventoryItem> inventoryItems)
         {
-            this.coins = moneyCollection;
+            this.hopper = hopper;
             this.inventory = inventoryItems;
         }
 
@@ -19,7 +19,7 @@
         {
             get
             {
-                return this.coins.Total;
+                return this.hopper.Total;
             }
         }
 
@@ -31,22 +31,44 @@
             }            
         }
 
-        public MoneyHopper Purchase(Product product, MoneyHopper coinsOffered)
+        public CoinPurse Purchase(string location, CoinPurse customersPurse)
+        {
+            return this.Purchase(this.GetInventory(location).Product, customersPurse);
+        }
+
+        public CoinPurse Purchase(Product product, CoinPurse coinsOffered)
         {
             this.EnsureSufficientCoinsGiven(product, coinsOffered);
 
             this.AcceptCoins(coinsOffered);
 
             var change = this.CalculateChange(product, coinsOffered);
-            
+
+            this.UpdateInventory(product);
+
             return change;
         }
 
-        private MoneyHopper CalculateChange(Product product, MoneyHopper coinsOffered)
+        protected void UpdateInventory(Product product)
         {
-            var change = new MoneyHopper(coinsOffered.Currency);
+            this.GetInventory(product).Quantity -= 1;
+        }
+
+        private InventoryItem GetInventory(Product product)
+        {
+            return this.Inventory.First(item => item.Product.Equals(product));
+        }
+
+        private InventoryItem GetInventory(string location)
+        {
+            return this.Inventory.First(item => item.MachineLocation.Equals(location));
+        }
+
+        private CoinPurse CalculateChange(Product product, CoinPurse coinsOffered)
+        {
+            var change = new CoinPurse(coinsOffered.Currency);
             var changeRequired = coinsOffered.Total - product.Price;
-            foreach (var stack in this.coins.OrderByDescending(item => item.Coin.Denomination))
+            foreach (var stack in this.hopper.OrderByDescending(item => item.Coin.Denomination))
             {
                 if (stack.Amount > 0 && (changeRequired - stack.Coin.Denomination >= 0))
                 {
@@ -77,7 +99,7 @@
         {
             foreach (var coin in coinsOffered)
             {
-                this.coins.Remove(coin);
+                this.hopper.Remove(coin);
             }
         }
 
@@ -85,7 +107,7 @@
         {
             foreach (var coin in coinsOffered)
             {
-                this.coins.Add(coin);
+                this.hopper.Add(coin);
             }
         }
 
