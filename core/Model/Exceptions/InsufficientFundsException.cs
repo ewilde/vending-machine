@@ -8,6 +8,9 @@ namespace VendingMachine.Core
     using System;
     using System.Runtime.Serialization;
 
+    /// <summary>
+    /// Exception raised when there are not enough funds.
+    /// </summary>
     [Serializable]
     public class InsufficientFundsException : VendingMachineException
     {

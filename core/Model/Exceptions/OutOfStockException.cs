@@ -8,9 +8,14 @@ namespace VendingMachine.Core
     using System;
     using System.Runtime.Serialization;
 
+    /// <summary>
+    /// Exception raised when a <see cref="Product"/> is out of stock.
+    /// </summary>
     [Serializable]
     public class OutOfStockException : Exception
     {
+        public Product Product { get; set; }
+
         public OutOfStockException()
         {
         }
@@ -18,6 +23,11 @@ namespace VendingMachine.Core
         public OutOfStockException(string message)
             : base(message)
         {
+        }
+
+        public OutOfStockException(string message, Product product) : this(message)
+        {
+            this.Product = product;
         }
 
         public OutOfStockException(string message, Exception inner)

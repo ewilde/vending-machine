@@ -5,6 +5,9 @@
 // -----------------------------------------------------------------------
 namespace VendingMachine.Core
 {
+    /// <summary>
+    /// A stack of coins all of which are of the same currency and denomination
+    /// </summary>
     public class StackOfCoins
     {
         public Coin Coin { get; private set; }

@@ -58,6 +58,10 @@
     <Compile Include="Model\Validation\IDenominationValidatorFactory.cs" />
     <Compile Include="Model\InventoryItem.cs" />
     <Compile Include="Model\Product.cs" />
+    <Compile Include="Model\IInventoryManager.cs" />
+    <Compile Include="Model\InventoryManager.cs" />
+    <Compile Include="Model\Validation\IVendingValidation.cs" />
+    <Compile Include="Model\Validation\VendingValidation.cs" />
     <Compile Include="VendingMachineApplication.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

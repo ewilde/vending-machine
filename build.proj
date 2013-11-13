@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="All" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"/>
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>   
+        <OutputDir Condition=" '$(OutputDir)' == '' ">..\build\release\</OutputDir>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectToBuild Include="vending-machine.sln">
+            <Properties>OutputPath=$(OutputDir);Configuration=$(Configuration);Targets=clean,build</Properties>
+        </ProjectToBuild>
+    </ItemGroup>
+    <Target Name="All" DependsOnTargets="Build;RunSpecs"/>
+
+	<Target Name="Build">
+		 <MSBuild Projects="@(ProjectToBuild)"/>
+	</Target>
+	<Target Name="RunSpecs">
+		<PropertyGroup>
+			<MSpecCommand>packages\Machine.Specifications.0.5.16\tools\mspec-clr4.exe  build\release\Vending.Machine.Core.Tests.dll</MSpecCommand>
+		</PropertyGroup>
+		<Message Importance="high" Text="Running Specs with this command: $(MSpecCommand)"/>
+		<Exec Command="$(MSpecCommand)"/>
+	</Target>
+</Project>

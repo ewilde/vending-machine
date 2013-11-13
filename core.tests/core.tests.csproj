@@ -62,6 +62,8 @@
     <Compile Include="Model\Validation\CoinValidatorSpecs.cs" />
     <Compile Include="Model\Validation\CurrencyValidatorSpecs.cs" />
     <Compile Include="Model\Validation\DenominationValidatorFactorySpecs.cs" />
+    <Compile Include="Model\Validation\DenominationValidatorSpec.cs" />
+    <Compile Include="Model\Validation\VendingValidationSpec.cs" />
     <Compile Include="Util\ContextBase.cs" />
     <Compile Include="VendingMachineApplicationSpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

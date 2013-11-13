@@ -7,6 +7,10 @@ namespace VendingMachine.Core
 {
     using System;
 
+    /// <summary>
+    /// Responsible for validating a coin structure. It enforces supported currency 
+    /// and correct denomination for that currency
+    /// </summary>
     public class CoinValidator : ICoinValidator
     {
         private readonly ICurrencyValidator currencyValidator;
@@ -26,7 +30,10 @@ namespace VendingMachine.Core
             }
 
             var denominationValidator = this.denominationValidatorFactory.Create(coin.Currency);
-            denominationValidator.Validate(coin.Denomination);
+            if (!denominationValidator.Validate(coin.Denomination))
+            {
+                throw new ArgumentOutOfRangeException(string.Format("Denomination {0} is not supported for currency {1}.", coin.Denomination, coin.Currency));
+            }
         }
     }
 }

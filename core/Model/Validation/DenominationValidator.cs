@@ -7,6 +7,10 @@ namespace VendingMachine.Core
 {
     using System.Collections.Generic;
 
+    /// <summary>
+    /// Validates that the denominations for a given coin are valid.
+    /// For example $0.20 is not a valid coin.
+    /// </summary>
     public class DenominationValidator : IDenominationValidator
     {
         public DenominationValidator(Currency currency, IEnumerable<decimal> denominations)
@@ -21,7 +25,7 @@ namespace VendingMachine.Core
 
         public bool Validate(decimal amount)
         {
-            return false;
+            return this.Denominations.Contains(amount);
         }
     }
 }

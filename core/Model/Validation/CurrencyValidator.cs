@@ -5,6 +5,9 @@
 // -----------------------------------------------------------------------
 namespace VendingMachine.Core
 {
+    /// <summary>
+    /// Validates supported currencies for the system.
+    /// </summary>
     public class CurrencyValidator : ICurrencyValidator
     {
         public bool SupportedCurrency(Currency currency)

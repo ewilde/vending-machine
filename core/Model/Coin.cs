@@ -5,6 +5,9 @@
 // -----------------------------------------------------------------------
 namespace VendingMachine.Core
 {
+    /// <summary>
+    /// Represents a physical coin, with a denomination and a currency
+    /// </summary>
     public struct Coin
     {
         private readonly Currency currency;

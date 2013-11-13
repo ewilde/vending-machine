@@ -42,19 +42,20 @@
 
         }
 
+        private Action lastActionMessage;
         private bool PurchaseItem(string key)
         {
             try
             {
                 var change = this.vendingMachine.Purchase(key, this.customersPurse);
                 this.customersPurse = change;
-                ConsoleUtility.PrintSuccess("Item purchased...");
+                lastActionMessage = () => ConsoleUtility.PrintSuccess("Item purchased...");
 
                 return true;
             }
             catch (VendingMachineException vendingException)
             {
-                ConsoleUtility.PrintError(vendingException.Message);
+                lastActionMessage = () => ConsoleUtility.PrintError(vendingException.Message);
                 return true;
             }
             catch (Exception generalException)
@@ -71,7 +72,8 @@
 
         private void PrintState()
         {
-            Console.WriteLine();
+            Console.Clear();
+           
 
             Console.WriteLine("----- Vending machine state -------");
             Console.WriteLine(
@@ -90,7 +92,13 @@
                     item => item.Coin.Denomination,
                     item => item.Amount));
 
+            if (this.lastActionMessage != null)
+            {
+                this.lastActionMessage.Invoke();
+                this.lastActionMessage = null;
+            }
 
+            Console.WriteLine();
             Console.WriteLine(string.Format("{0,-15}£ {1:0.00}", "Purse total:", this.customersPurse.Total));
         }
 

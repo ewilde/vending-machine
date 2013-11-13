@@ -39,7 +39,23 @@ namespace VendingMachine.Core.Tests
         Establish context = () =>
             {
                 coin = new Coin((Currency)666, 0.5m);
-                With(new InvalidCoinContext(coin));
+                With(new InvalidCurrencyContext(coin));
+            };
+        
+        Because of = () => Exception = Catch.Exception(() => Subject.Validate(coin));
+
+        It should_throw_an_exception = () => Exception.ShouldNotBeNull();
+    }         
+
+    [Subject(typeof(CoinValidator), "Validation")]
+    public class when_validating_coins_based_on_an_unsupported_denomination : Util.WithSubject<CoinValidator>
+    {
+        static Coin coin;
+        
+        Establish context = () =>
+            {
+                coin = new Coin(Currency.GBP, 0.52m);
+                With(new InvalidDenominationContext(coin));
             };
         
         Because of = () => Exception = Catch.Exception(() => Subject.Validate(coin));
@@ -63,16 +79,17 @@ namespace VendingMachine.Core.Tests
                     accessor.The<IDenominationValidatorFactory>()
                             .WhenToldTo(call => call.Create(coin.Currency))
                             .Return(accessor.The<IDenominationValidator>());
+                    accessor.The<IDenominationValidator>().WhenToldTo(call => call.Validate(Param<decimal>.IsAnything)).Return(true);
                 };
     }   
 
-    public class InvalidCoinContext
+    public class InvalidCurrencyContext
     {
         private static Coin coin;
 
-        public InvalidCoinContext(Coin coin)
+        public InvalidCurrencyContext(Coin coin)
         {
-            InvalidCoinContext.coin = coin;
+            InvalidCurrencyContext.coin = coin;
         }
 
         private OnEstablish context =
@@ -82,6 +99,27 @@ namespace VendingMachine.Core.Tests
                     accessor.The<IDenominationValidatorFactory>()
                             .WhenToldTo(call => call.Create(coin.Currency))
                             .Return(accessor.The<IDenominationValidator>());
+                    
+                };
+    }
+
+    public class InvalidDenominationContext
+    {
+        private static Coin coin;
+
+        public InvalidDenominationContext(Coin coin)
+        {
+            InvalidDenominationContext.coin = coin;
+        }
+
+        private OnEstablish context =
+            accessor =>
+                {
+                    accessor.The<ICurrencyValidator>().WhenToldTo(call => call.SupportedCurrency(Param<Currency>.IsAnything)).Return(true);                                         
+                    accessor.The<IDenominationValidatorFactory>()
+                            .WhenToldTo(call => call.Create(coin.Currency))
+                            .Return(accessor.The<IDenominationValidator>());
+                    accessor.The<IDenominationValidator>().WhenToldTo(call => call.Validate(Param<decimal>.IsAnything)).Return(false);
                 };
     }
 }

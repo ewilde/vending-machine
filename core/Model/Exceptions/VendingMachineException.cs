@@ -8,6 +8,9 @@ namespace VendingMachine.Core
     using System;
     using System.Runtime.Serialization;
 
+    /// <summary>
+    /// Base exception for all vending machine exceptions.
+    /// </summary>
     [Serializable]
     public class VendingMachineException : ApplicationException
     {

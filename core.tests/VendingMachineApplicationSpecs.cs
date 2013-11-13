@@ -16,7 +16,14 @@ namespace VendingMachine.Core.Tests
     [Subject(typeof(VendingMachineApplication), "initialization")]
     public class when_a_machine_is_loaded_at_the_beginning_off_the_day : Util.WithSubject<VendingMachineApplication>
     {
-        Establish context = () => {  };
+        static List<InventoryItem> inventoryItems;
+
+        Establish context = () =>
+            inventoryItems = new List<InventoryItem>
+            {
+                new InventoryItem(product: new Product(name: "Coke", price: 0.80m), quantity: 10, machineLocation: "A1"),
+                new InventoryItem(product: new Product(name: "Sprite", price: 0.60m), quantity: 5, machineLocation: "A2")
+            };
 
         Because of = () => Subject.Load(
             new MoneyHopper(Currency.GBP)
@@ -25,29 +32,23 @@ namespace VendingMachine.Core.Tests
                     new StackOfCoins(new Coin(Currency.GBP, 0.05m), 10), 
                     new StackOfCoins(new Coin(Currency.GBP, 0.10m), 5)
                 },
-            new List<InventoryItem>
-                {
-                    new InventoryItem(product: new Product(name: "Coke", price: 0.80m), quantity: 10, machineLocation: "A1"),
-                    new InventoryItem(product: new Product(name: "Sprite", price: 0.60m), quantity: 5, machineLocation: "A2")
-                });
+            inventoryItems);
 
-        It should_report_the_total_amount_of_money = () => Subject.TotalMoneyAvailable.ShouldEqual(1.15m);
+        It should_report_the_total_amount_of_money = () => Subject.Balance.ShouldEqual(1.15m);
 
-        It should_store_the_products_available = () => Subject.Inventory.Count().ShouldEqual(2);
+        It should_store_the_products_available = () => The<IInventoryManager>().WasToldTo(call => call.Load(inventoryItems));
     }
 
     [Subject(typeof(VendingMachineApplication), "purchasing")]
     public class when_purchasing_an_item_using_a_single_coin : WithSubjectAndResult<VendingMachineApplication, MoneyHopper>
     {
         static decimal originalBalance;
-        static int originalCokeQuantity;
         static CoinPurse customersCoins;
 
         Establish context = () =>
             {
                 With<FullyLoadedVendingMachineContext>();
-                originalBalance = Subject.TotalMoneyAvailable;
-                originalCokeQuantity = Subject.Inventory.First(item => item.Product.Equals(DummyInventory.Coke)).Quantity;
+                originalBalance = Subject.Balance;
                 customersCoins = new CoinPurse(Currency.GBP)
                     {
                         new StackOfCoins(new Coin(Currency.GBP, 2.00m), 1)
@@ -59,7 +60,7 @@ namespace VendingMachine.Core.Tests
         It should_return_the_correct_amount_of_change = () => Result.Total.ShouldEqual(1.20m);
 
         It should_item_cost_should_be_credited_to_the_vending_machine_balane = () =>
-            Subject.TotalMoneyAvailable.ShouldEqual(originalBalance + DummyInventory.Coke.Price);
+            Subject.Balance.ShouldEqual(originalBalance + DummyInventory.Coke.Price);
 
         It should_return_change_made_up_of_the_highest_value_coins = () =>
             {
@@ -68,8 +69,7 @@ namespace VendingMachine.Core.Tests
             };
 
         It should_decrease_the_inventory_count_for_the_purchased_item_by_one = () =>
-                Subject.Inventory.First(item => item.Product.Equals(DummyInventory.Coke))
-                       .Quantity.ShouldEqual(originalCokeQuantity - 1);
+                The<IInventoryManager>().WasToldTo(call => call.UpdateInventory(DummyInventory.Coke));
             
     }
 
@@ -82,7 +82,7 @@ namespace VendingMachine.Core.Tests
         Establish context = () =>
             {
                 With<FullyLoadedVendingMachineContext>();
-                originalBalance = Subject.TotalMoneyAvailable;
+                originalBalance = Subject.Balance;
                 customersCoins = new CoinPurse(Currency.GBP)
                     {
                         new StackOfCoins(new Coin(Currency.GBP, 0.20m), 2),
@@ -96,7 +96,7 @@ namespace VendingMachine.Core.Tests
         It should_return_the_correct_amount_of_change = () => Result.Total.ShouldEqual(0.10m);
 
         It should_item_cost_should_be_credited_to_the_vending_machine_balane = () =>
-            Subject.TotalMoneyAvailable.ShouldEqual(originalBalance + DummyInventory.Coke.Price);
+            Subject.Balance.ShouldEqual(originalBalance + DummyInventory.Coke.Price);
 
         It should_return_change_made_up_of_the_highest_value_coins = () =>
             {
@@ -113,25 +113,23 @@ namespace VendingMachine.Core.Tests
         Establish context = () =>
             {
                 With<FullyLoadedVendingMachineContext>();
-                originalBalance = Subject.TotalMoneyAvailable;
+                originalBalance = Subject.Balance;
                 customersCoins = new CoinPurse(Currency.GBP)
                     {
                         new StackOfCoins(new Coin(Currency.GBP, 0.50m), 1),
                         new StackOfCoins(new Coin(Currency.GBP, 0.20m), 1)
                     };
+                The<IVendingValidation>()
+                    .WhenToldTo(call => call.EnsureSufficientCoinsGiven(DummyInventory.Coke, customersCoins)).Throw(new InsufficientFundsException());
             };
 
         Because of = () => Exception =
             Catch.Exception(()=> Result = Subject.Purchase(DummyInventory.Coke, customersCoins));
 
-        It should_throw_an_exception = () => Exception.ShouldNotBeNull();
-
-        It should_throw_an_exception_of_type_insufficient_funds_exception = () => Exception.ShouldBeOfType<InsufficientFundsException>();
-
-        It should_leave_the_vending_machine_cash_balance_unaltered = () => Subject.TotalMoneyAvailable.ShouldEqual(originalBalance);
+        It should_leave_the_vending_machine_cash_balance_unaltered = () => Subject.Balance.ShouldEqual(originalBalance);
 
         It should_not_decrease_the_inventory_count_for_the_attempted_purchase = () =>
-            Subject.Inventory.First(item => item.Product.Equals(DummyInventory.Coke)).Quantity.ShouldEqual(10);
+            The<IInventoryManager>().WasNotToldTo(call => call.UpdateInventory(DummyInventory.Coke));
     }
 
     [Subject(typeof(VendingMachineApplication), "purchasing")]
@@ -145,7 +143,7 @@ namespace VendingMachine.Core.Tests
                 With(new FullyLoadedVendingMachineContext(
                     new MoneyHopper(Currency.GBP, new List<StackOfCoins>(new[] { new StackOfCoins(new Coin(Currency.GBP, 2.0m), 100) }))));
 
-                originalBalance = Subject.TotalMoneyAvailable;
+                originalBalance = Subject.Balance;
                 customersCoins = new CoinPurse(Currency.GBP)
                 {
                     new StackOfCoins(new Coin(Currency.GBP, 0.50m), 1),
@@ -153,46 +151,73 @@ namespace VendingMachine.Core.Tests
                 };
             };
 
-        Because of = () => Exception = Catch.Exception(() => Result = Subject.Purchase(DummyInventory.Coke, // 80p 
-            customersCoins));
+        Because of = () => Exception = Catch.Exception(() => Result = Subject.Purchase(DummyInventory.Coke, customersCoins));
 
         It should_return_the_change = () => customersCoins.Total.ShouldEqual(0.90m);
 
         It should_throw_an_exception = () => Exception.ShouldNotBeNull();
 
-        It should_leave_the_vending_machine_cash_balance_unaltered = () => Subject.TotalMoneyAvailable.ShouldEqual(originalBalance);
+        It should_leave_the_vending_machine_cash_balance_unaltered = () => Subject.Balance.ShouldEqual(originalBalance);
     }
 
     [Subject(typeof(VendingMachineApplication), "Validation")]
-    public class when_attempting_to_purchase_an_out_of_stock_item
+    public class when_attempting_to_purchase_an_out_of_stock_item : WithSubjectAndResult<VendingMachineApplication, MoneyHopper>
     {
-        Establish context = () => {  };
+        static CoinPurse customersCoins;
+        static decimal originalBalance;
+        static InventoryItem inventoryItem;
 
-        Because of = () => { };
+        Establish context = () =>
+            {
+                inventoryItem = new InventoryItem(DummyInventory.Coke, 0, "A1");
+                With(new FullyLoadedVendingMachineContext(new List<InventoryItem>{inventoryItem}));
+                originalBalance = Subject.Balance;
+               
+                customersCoins = new CoinPurse(Currency.GBP)
+                {
+                    new StackOfCoins(new Coin(Currency.GBP, 0.50m), 1),
+                    new StackOfCoins(new Coin(Currency.GBP, 0.20m), 2)
+                };
 
-        It should_throw_an_exception = () => { };
+                The<IVendingValidation>().WhenToldTo(call => call.EnsureProductIsInStock(Param<InventoryItem>.IsAnything)).Throw(new OutOfStockException());
+            };
 
-        It should_throw_an_exception_of_type_product_out_of_stock_exception = () => { asd };
+        Because of = () => Exception = Catch.Exception(() => Result = Subject.Purchase(DummyInventory.Coke, customersCoins));
+
+        It should_return_the_change = () => customersCoins.Total.ShouldEqual(0.90m);
+
+        It should_leave_the_vending_machine_cash_balance_unaltered = () => Subject.Balance.ShouldEqual(originalBalance);        
     }
 
     public class FullyLoadedVendingMachineContext : ContextBase
     {
         private static MoneyHopper cash;
 
+        private static List<InventoryItem> inventory;
+
         OnEstablish context = engine =>
             {
                 FakeAccessor = engine;
-                ContextBase.Subject<VendingMachineApplication>().Load(cash, Inventory());
+                ContextBase.Subject<VendingMachineApplication>().Load(cash, inventory);
             };
 
-        public FullyLoadedVendingMachineContext()
+        public FullyLoadedVendingMachineContext() : this(Cash())
         {
-            cash = Cash();
+            
         }
 
-        public FullyLoadedVendingMachineContext(MoneyHopper moneyHopper)
+        public FullyLoadedVendingMachineContext(MoneyHopper moneyHopper) : this(moneyHopper, Inventory())
         {
-            cash = moneyHopper;
+        }
+
+        public FullyLoadedVendingMachineContext(List<InventoryItem> inventory) : this(Cash(), inventory)
+        {            
+        }
+
+        public FullyLoadedVendingMachineContext(MoneyHopper moneyHopper, List<InventoryItem> inventory)
+        {
+            FullyLoadedVendingMachineContext.cash = moneyHopper;
+            FullyLoadedVendingMachineContext.inventory = inventory;
         }
 
         public static MoneyHopper Cash()

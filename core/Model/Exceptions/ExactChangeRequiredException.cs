@@ -8,6 +8,9 @@ namespace VendingMachine.Core
     using System;
     using System.Runtime.Serialization;
 
+    /// <summary>
+    /// Exception raised when exact change is required.
+    /// </summary>
     [Serializable]
     public class ExactChangeRequiredException : Exception
     {

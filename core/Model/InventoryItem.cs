@@ -5,6 +5,9 @@
 // -----------------------------------------------------------------------
 namespace VendingMachine.Core
 {
+    /// <summary>
+    /// Responsible for tracking the amount of a given <see cref="Product"/> in stock.
+    /// </summary>
     public class InventoryItem
     {
         public Product Product { get; set; }

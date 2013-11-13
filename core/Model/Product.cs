@@ -5,6 +5,9 @@
 // -----------------------------------------------------------------------
 namespace VendingMachine.Core
 {
+    /// <summary>
+    /// Represents a simple product
+    /// </summary>
     public class Product
     {
         public Product(string name, decimal price)

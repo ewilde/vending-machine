@@ -10,6 +10,11 @@ namespace VendingMachine.Core
     using System.Collections.ObjectModel;
     using System.Linq;
 
+    /// <summary>
+    /// A money hopper is a collection of stacks of coins. The money hopper is used
+    /// by the <see cref="VendingMachineApplication"/> to store <see cref="StackOfCoins">stacks of coins</see>
+    /// all of the same currency.
+    /// </summary>
     public class MoneyHopper : Collection<StackOfCoins>
     {
         private readonly Currency currency;

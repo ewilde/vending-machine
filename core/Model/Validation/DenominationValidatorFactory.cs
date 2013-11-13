@@ -7,12 +7,18 @@ namespace VendingMachine.Core
 {
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
 
+    /// <summary>
+    /// Creates the appropriate validator for a given <see cref="Currency"/>.
+    /// </summary>
     public class DenominationValidatorFactory : IDenominationValidatorFactory
     {
         private static readonly Dictionary<Currency, decimal[]> denominations;
 
+        private readonly ConcurrentDictionary<Currency, IDenominationValidator> validators;
+ 
         static DenominationValidatorFactory()
         {
             denominations = new Dictionary<Currency, decimal[]>
@@ -22,9 +28,14 @@ namespace VendingMachine.Core
                 };
         }
 
+        public DenominationValidatorFactory()
+        {
+            this.validators = new ConcurrentDictionary<Currency, IDenominationValidator>();
+        }
+
         public IDenominationValidator Create(Currency currency)
         {
-            return new DenominationValidator(currency, denominations[currency]);
+            return this.validators.GetOrAdd(currency, key => new DenominationValidator(currency, denominations[key]));            
         }
     }
 }

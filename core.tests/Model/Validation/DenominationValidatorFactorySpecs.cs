@@ -35,4 +35,11 @@ namespace VendingMachine.Core.Tests
         It should_contain_the_list_of_british_coin_denominations = () =>
             Result.Denominations.ShouldContainOnly(new[] { 0.01m, 0.02m, 0.05m, 0.10m, 0.20m, 0.50m, 1.00m, 2.00m });
     }
+
+    [Subject(typeof(DenominationValidatorFactory))]
+    public class when_retrieving_items_validators_multiple_times : Util.WithSubject<DenominationValidatorFactory>
+    {
+        It should_return_the_same_instance = () =>
+                ReferenceEquals(Subject.Create(Currency.GBP), Subject.Create(Currency.GBP)).ShouldBeTrue();
+    }
 }
